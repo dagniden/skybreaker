@@ -1,0 +1,33 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VDI_HOST }}
+          username: ${{ secrets.VDI_USER }}
+          key: ${{ secrets.VDI_SSH_KEY }}
+          port: ${{ secrets.VDI_PORT }}
+          script: |
+            set -e
+
+            cd /opt/skybreaker
+
+            git fetch origin main
+            git reset --hard origin/main
+
+            poetry install --no-interaction --no-root
+
+            poetry run python manage.py migrate --noinput
+            poetry run python manage.py collectstatic --noinput
+
+            sudo systemctl restart skybreaker
