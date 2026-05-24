@@ -35,7 +35,6 @@ class PlantCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.last_watered_at = timezone.now()
         return super().form_valid(form)
 
 
