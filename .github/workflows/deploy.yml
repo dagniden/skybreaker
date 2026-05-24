@@ -25,9 +25,11 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            poetry install --no-interaction --no-root
+            /home/deploy/.local/bin/poetry --version
+            /home/deploy/.local/bin/poetry run python --version
+            /home/deploy/.local/bin/poetry install --no-interaction --no-root
 
-            poetry run python manage.py migrate --noinput
-            poetry run python manage.py collectstatic --noinput
+            /home/deploy/.local/bin/poetry run python manage.py migrate --noinput
+            /home/deploy/.local/bin/poetry run python manage.py collectstatic --noinput
 
             sudo systemctl restart skybreaker
