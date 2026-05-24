@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}Редактировать{% else %}Новый цветок{% endif %}{% endblock %}
+
+{% block content %}
+  <section class="phone-panel form-panel">
+    <h1>{% if object %}Редактировать{% else %}Новый цветок{% endif %}</h1>
+
+    <form method="post" class="app-form">
+      {% csrf_token %}
+      {{ form.as_div }}
+      <button class="primary-button" type="submit">Сохранить</button>
+    </form>
+
+    <a class="secondary-link" href="{% if object %}{% url 'garden:plant_detail' object.pk %}{% else %}{% url 'garden:plant_list' %}{% endif %}">Назад</a>
+  </section>
+{% endblock %}

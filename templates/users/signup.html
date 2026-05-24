@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+  <section class="phone-panel form-panel">
+    <h1>Регистрация</h1>
+
+    <form method="post" class="app-form">
+      {% csrf_token %}
+      {{ form.as_div }}
+      <button class="primary-button" type="submit">Создать аккаунт</button>
+    </form>
+
+    <a class="secondary-link" href="{% url 'users:login' %}">Уже есть аккаунт</a>
+  </section>
+{% endblock %}

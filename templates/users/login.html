@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+  <section class="phone-panel form-panel">
+    <h1>Вход</h1>
+
+    <form method="post" class="app-form">
+      {% csrf_token %}
+      {{ form.as_div }}
+      <button class="primary-button" type="submit">Войти</button>
+    </form>
+
+    <a class="secondary-link" href="{% url 'users:signup' %}">Создать аккаунт</a>
+  </section>
+{% endblock %}

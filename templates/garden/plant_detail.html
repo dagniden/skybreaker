@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ plant.name }}{% endblock %}
+
+{% block content %}
+  <article class="phone-panel detail-panel">
+    <div class="detail-hero">
+      <span class="plant-icon plant-icon-large" aria-hidden="true">
+        <span class="plant-water" style="height: {{ plant.moisture_percent }}%"></span>
+      </span>
+
+      <h1 class="detail-title">{{ plant.name }}</h1>
+
+      <form method="post" action="{% url 'garden:plant_water' plant.pk %}" data-water-form>
+        {% csrf_token %}
+        <button class="primary-button" type="submit">Полил</button>
+      </form>
+    </div>
+
+    <dl class="plant-info">
+      <div>
+        <dt>Влага</dt>
+        <dd><span data-moisture-value>{{ plant.moisture_percent }}</span>%</dd>
+      </div>
+      <div>
+        <dt>Интервал</dt>
+        <dd>{{ plant.watering_interval_days }} дн.</dd>
+      </div>
+      <div>
+        <dt>Последний полив</dt>
+        <dd>{{ plant.last_watered_at|date:"d.m.Y H:i" }}</dd>
+      </div>
+    </dl>
+
+    <div class="detail-actions">
+      <a href="{% url 'garden:plant_update' plant.pk %}">Редактировать</a>
+      <a href="{% url 'garden:plant_delete' plant.pk %}">Удалить</a>
+    </div>
+
+    <section class="photo-history" aria-labelledby="photo-history-title">
+      <h2 id="photo-history-title">История фото</h2>
+
+      {% if plant.photos.exists %}
+        <div class="photo-carousel" data-photo-carousel>
+          {% for photo in plant.photos.all %}
+            <figure class="photo-slide">
+              <img src="{{ photo.image.url }}" alt="{{ plant.name }}">
+              <figcaption>{{ photo.taken_at|date:"d.m.Y" }}</figcaption>
+            </figure>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="photo-placeholder">Фото пока нет. Здесь появится история снимков цветка.</p>
+      {% endif %}
+    </section>
+  </article>
+{% endblock %}

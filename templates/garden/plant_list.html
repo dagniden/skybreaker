@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Мои цветы{% endblock %}
+
+{% block content %}
+  <section class="phone-panel list-panel" aria-labelledby="plant-list-title">
+    <h1 id="plant-list-title" class="sr-only">Мои цветы</h1>
+
+    {% if not plants %}
+      <div class="empty-state">
+        <p>Цветов пока нет.</p>
+        <p>Добавь первый цветок и задай интервал полива.</p>
+      </div>
+    {% endif %}
+
+    <div class="plant-grid">
+      {% for plant in plants %}
+        <a
+          class="plant-card"
+          href="{% url 'garden:plant_detail' plant.pk %}"
+          data-water-url="{% url 'garden:plant_water' plant.pk %}"
+          data-plant-card
+        >
+          <span class="plant-icon" aria-hidden="true">
+            <span class="plant-water" style="height: {{ plant.moisture_percent }}%"></span>
+          </span>
+          <span class="plant-name">{{ plant.name }}</span>
+        </a>
+      {% endfor %}
+
+      <a class="plant-card add-plant-card" href="{% url 'garden:plant_create' %}" aria-label="Добавить цветок">
+        <span class="add-plant-icon" aria-hidden="true">+</span>
+        <span class="plant-name">Добавить</span>
+      </a>
+    </div>
+  </section>
+{% endblock %}

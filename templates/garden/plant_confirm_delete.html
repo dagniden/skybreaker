@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Удалить {{ object.name }}{% endblock %}
+
+{% block content %}
+  <section class="phone-panel form-panel">
+    <h1>Удалить цветок?</h1>
+    <p>Цветок «{{ object.name }}» и его фото будут удалены.</p>
+
+    <form method="post" class="app-form">
+      {% csrf_token %}
+      <button class="danger-button" type="submit">Удалить</button>
+    </form>
+
+    <a class="secondary-link" href="{% url 'garden:plant_detail' object.pk %}">Отмена</a>
+  </section>
+{% endblock %}
