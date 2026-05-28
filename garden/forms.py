@@ -15,14 +15,19 @@ class PlantForm(forms.ModelForm):
 
     class Meta:
         model = Plant
-        fields = ('name', 'watering_interval_days', 'last_watered_on')
+        fields = ('name', 'watering_interval_days', 'last_watered_on', 'notes')
         labels = {
             'name': 'Название',
             'watering_interval_days': 'Интервал полива, дней',
+            'notes': 'Заметки по уходу',
         }
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Монстера'}),
             'watering_interval_days': forms.NumberInput(attrs={'min': 1}),
+            'notes': forms.Textarea(attrs={
+                'rows': 5,
+                'placeholder': 'Например: любит рассеянный свет, не заливать...',
+            }),
         }
 
     def __init__(self, *args, **kwargs):

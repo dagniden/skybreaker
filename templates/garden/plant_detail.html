@@ -32,6 +32,13 @@
       </div>
     </dl>
 
+    {% if plant.notes %}
+      <section class="plant-notes" aria-labelledby="plant-notes-title">
+        <h2 id="plant-notes-title">Заметки по уходу</h2>
+        <p>{{ plant.notes|linebreaksbr }}</p>
+      </section>
+    {% endif %}
+
     <div class="detail-actions">
       <a href="{% url 'garden:plant_update' plant.pk %}">Редактировать</a>
       <a href="{% url 'garden:plant_delete' plant.pk %}">Удалить</a>

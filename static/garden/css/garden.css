@@ -286,6 +286,22 @@ input {
   color: var(--muted);
 }
 
+.plant-notes {
+  margin-top: 18px;
+  color: var(--muted);
+}
+
+.plant-notes h2 {
+  margin: 0 0 8px;
+  color: var(--blue);
+  font-size: 1.1rem;
+}
+
+.plant-notes p {
+  margin: 0;
+  line-height: 1.45;
+}
+
 .detail-actions {
   display: flex;
   gap: 16px;
@@ -351,13 +367,19 @@ input {
   color: var(--blue);
 }
 
-.app-form input {
+.app-form input,
+.app-form textarea {
   width: 100%;
   padding: 10px 12px;
   border: 2px solid #3d4650;
   border-radius: 8px;
   background: #171a1d;
   color: var(--text);
+}
+
+.app-form textarea {
+  min-height: 120px;
+  resize: vertical;
 }
 
 .helptext,

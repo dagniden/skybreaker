@@ -13,6 +13,7 @@ class Plant(models.Model):
     name = models.CharField(max_length=100)
     watering_interval_days = models.PositiveIntegerField()
     last_watered_at = models.DateTimeField(default=timezone.now)
+    notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
