@@ -19,6 +19,7 @@
           class="plant-card"
           href="{% url 'garden:plant_detail' plant.pk %}"
           data-water-url="{% url 'garden:plant_water' plant.pk %}"
+          data-moisture-percent="{{ plant.moisture_percent }}"
           data-plant-card
         >
           <span class="plant-icon" aria-hidden="true">

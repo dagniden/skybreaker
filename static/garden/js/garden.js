@@ -18,6 +18,31 @@ async function waterPlant(url) {
   return response.json();
 }
 
+function sortPlantCards() {
+  const grid = document.querySelector('.plant-grid');
+  if (!grid) {
+    return;
+  }
+
+  const cards = Array.from(grid.querySelectorAll('[data-plant-card]'));
+  const addCard = grid.querySelector('.add-plant-card');
+  cards.sort((firstCard, secondCard) => {
+    const firstMoisture = Number(firstCard.dataset.moisturePercent) || 0;
+    const secondMoisture = Number(secondCard.dataset.moisturePercent) || 0;
+    const moistureDiff = firstMoisture - secondMoisture;
+
+    if (moistureDiff !== 0) {
+      return moistureDiff;
+    }
+
+    return firstCard.textContent.trim().localeCompare(secondCard.textContent.trim(), undefined, {
+      sensitivity: 'base',
+    });
+  });
+
+  cards.forEach((card) => grid.insertBefore(card, addCard));
+}
+
 function setupPlantCards() {
   const cards = document.querySelectorAll('[data-plant-card]');
   const doubleTapDelay = 300;
@@ -41,6 +66,9 @@ function setupPlantCards() {
           if (water) {
             water.style.height = `${data.moisture_percent}%`;
           }
+
+          card.dataset.moisturePercent = data.moisture_percent;
+          sortPlantCards();
 
           card.classList.add('is-watered');
           setTimeout(() => card.classList.remove('is-watered'), 450);
