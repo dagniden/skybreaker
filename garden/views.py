@@ -22,6 +22,10 @@ class PlantListView(UserPlantQuerySetMixin, ListView):
     template_name = 'garden/plant_list.html'
     context_object_name = 'plants'
 
+    def get_queryset(self):
+        plants = super().get_queryset()
+        return sorted(plants, key=lambda plant: (plant.moisture_percent, plant.name.lower()))
+
 
 class PlantDetailView(UserPlantQuerySetMixin, DetailView):
     template_name = 'garden/plant_detail.html'
