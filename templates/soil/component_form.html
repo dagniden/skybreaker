@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}Редактировать компонент{% else %}Новый компонент{% endif %}{% endblock %}
+
+{% block content %}
+  <section class="phone-panel form-panel">
+    <h1>{% if object %}Редактировать компонент{% else %}Новый компонент{% endif %}</h1>
+
+    <form method="post" class="app-form">
+      {% csrf_token %}
+      {{ form.as_div }}
+      <button class="primary-button" type="submit">Сохранить</button>
+    </form>
+
+    <a class="secondary-link" href="{% url 'soil:component_list' %}">Назад</a>
+  </section>
+{% endblock %}

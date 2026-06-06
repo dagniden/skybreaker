@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Состав почвы{% endblock %}
+
+{% block content %}
+  <section class="phone-panel form-panel">
+    <h1>
+      {% if mode == 'replace' %}
+        Новый состав почвы
+      {% elif mode == 'edit' %}
+        Исправить состав
+      {% else %}
+        Добавить состав почвы
+      {% endif %}
+    </h1>
+
+    <p class="form-subtitle">{{ plant.name }}</p>
+
+    {% if mode == 'edit' and plant_soil %}
+      <div class="mode-actions">
+        <a class="primary-button" href="{% url 'soil:plant_soil_replace' plant_soil.pk %}">Создать новый состав</a>
+      </div>
+      <p class="form-hint">Исправляй текущий состав только если это ошибка ввода. Если почва реально поменялась, создай новый состав.</p>
+    {% elif mode == 'replace' %}
+      <p class="form-hint">После сохранения этот состав станет текущим, а предыдущий останется в истории.</p>
+    {% endif %}
+
+    <form method="post" class="app-form soil-form">
+      {% csrf_token %}
+      {{ form.as_div }}
+
+      <fieldset class="soil-components-fieldset" data-formset data-formset-prefix="{{ formset.prefix }}">
+        <legend class="sr-only">Компоненты</legend>
+        {{ formset.management_form }}
+
+        {% if formset.non_form_errors %}
+          <div class="errorlist">{{ formset.non_form_errors }}</div>
+        {% endif %}
+
+        <template data-formset-empty-form>
+          <div class="soil-component-row" data-formset-row>
+            {{ formset.empty_form.id }}
+            <div>
+              {{ formset.empty_form.soil_component.label_tag }}
+              {{ formset.empty_form.soil_component }}
+              {{ formset.empty_form.soil_component.errors }}
+            </div>
+            <div>
+              {{ formset.empty_form.percentage.label_tag }}
+              {{ formset.empty_form.percentage }}
+              {{ formset.empty_form.percentage.errors }}
+            </div>
+            <span class="delete-row-control">{{ formset.empty_form.DELETE }}</span>
+            <button class="icon-button icon-button-delete delete-row" type="button" data-formset-remove aria-label="Убрать компонент">
+              <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+                <path d="M8 9h2v10H8V9Zm6 0h2v10h-2V9Z" />
+                <path d="M6 6h12v2H6V6Zm3-3h6l1 2H8l1-2Zm-1 19h8a2 2 0 0 0 2-2V9H6v11a2 2 0 0 0 2 2Z" />
+              </svg>
+            </button>
+          </div>
+        </template>
+
+        <div class="soil-component-rows" data-formset-rows>
+          {% for component_form in formset %}
+            <div class="soil-component-row{% if component_form.DELETE.value %} is-deleted{% endif %}" data-formset-row>
+              {{ component_form.id }}
+              {% if component_form.non_field_errors %}
+                <div class="errorlist soil-row-errors">{{ component_form.non_field_errors }}</div>
+              {% endif %}
+              <div>
+                {{ component_form.soil_component.label_tag }}
+                {{ component_form.soil_component }}
+                {{ component_form.soil_component.errors }}
+              </div>
+              <div>
+                {{ component_form.percentage.label_tag }}
+                {{ component_form.percentage }}
+                {{ component_form.percentage.errors }}
+              </div>
+              {% if component_form.DELETE %}
+                <span class="delete-row-control">{{ component_form.DELETE }}</span>
+                <button class="icon-button icon-button-delete delete-row" type="button" data-formset-remove aria-label="Убрать компонент">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+                    <path d="M8 9h2v10H8V9Zm6 0h2v10h-2V9Z" />
+                    <path d="M6 6h12v2H6V6Zm3-3h6l1 2H8l1-2Zm-1 19h8a2 2 0 0 0 2-2V9H6v11a2 2 0 0 0 2 2Z" />
+                  </svg>
+                </button>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+
+        <button class="secondary-button add-component-button" type="button" data-formset-add>+ компонент</button>
+      </fieldset>
+
+      <button class="primary-button" type="submit">Сохранить</button>
+    </form>
+
+    <div class="detail-actions">
+      <a href="{% url 'soil:component_list' %}">Справочник компонентов</a>
+      <a href="{% url 'garden:plant_detail' plant.pk %}">Назад к цветку</a>
+    </div>
+  </section>
+{% endblock %}

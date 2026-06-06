@@ -7,7 +7,10 @@
   --text: #eeeeee;
   --blue: #4aaeff;
   --blue-soft: rgba(74, 174, 255, 0.18);
+  --success: #66d17a;
+  --success-soft: rgba(102, 209, 122, 0.16);
   --danger: #ff6b6b;
+  --danger-soft: rgba(255, 107, 107, 0.14);
 }
 
 * {
@@ -28,7 +31,9 @@ a {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
@@ -48,7 +53,7 @@ input {
 }
 
 .brand {
-  color: var(--text);
+  color: var(--blue);
   font-size: 1.25rem;
   font-weight: 700;
 }
@@ -216,8 +221,9 @@ input {
   height: 74px;
   place-items: center;
   border: 3px solid var(--blue);
+  border-style: dashed;
   border-radius: 50%;
-  background: var(--blue-soft);
+  background: transparent;
   color: var(--blue);
   font-size: 3rem;
   line-height: 1;
@@ -246,6 +252,7 @@ input {
 }
 
 .primary-button,
+.secondary-button,
 .danger-button {
   min-width: 136px;
   padding: 8px 22px;
@@ -257,9 +264,59 @@ input {
   cursor: pointer;
 }
 
+.secondary-button {
+  width: fit-content;
+  border-color: #3d4650;
+  background: #171a1d;
+  color: var(--blue);
+}
+
+.add-component-button {
+  justify-self: center;
+  border-color: var(--blue);
+  border-style: dashed;
+  background: transparent;
+}
+
 .danger-button {
   border-color: var(--danger);
-  background: rgba(255, 107, 107, 0.14);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.hero-actions form {
+  margin: 0;
+}
+
+.icon-button {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 8px;
+}
+
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+.icon-button-edit {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.icon-button-delete {
+  background: var(--danger-soft);
   color: var(--danger);
 }
 
@@ -267,7 +324,7 @@ input {
   display: grid;
   gap: 8px;
   margin: 12px 0 0;
-  color: var(--blue);
+  color: var(--text);
   font-size: 1rem;
 }
 
@@ -283,18 +340,37 @@ input {
 }
 
 .plant-info dd {
-  color: var(--muted);
+  color: var(--text);
 }
 
+.plant-soil,
 .plant-notes {
   margin-top: 18px;
   color: var(--muted);
 }
 
+.plant-soil h2,
 .plant-notes h2 {
   margin: 0 0 8px;
-  color: var(--blue);
+  color: var(--text);
   font-size: 1.1rem;
+}
+
+.soil-composition-link {
+  display: inline-block;
+  line-height: 1.45;
+}
+
+.soil-placeholder,
+.form-subtitle,
+.form-hint {
+  margin: 0 0 10px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.soil-actions {
+  margin-top: 8px;
 }
 
 .plant-notes p {
@@ -314,7 +390,7 @@ input {
 
 .photo-history h2 {
   margin: 0 0 12px;
-  color: var(--blue);
+  color: var(--text);
   font-size: 1.1rem;
 }
 
@@ -368,6 +444,7 @@ input {
 }
 
 .app-form input,
+.app-form select,
 .app-form textarea {
   width: 100%;
   padding: 10px 12px;
@@ -375,6 +452,10 @@ input {
   border-radius: 8px;
   background: #171a1d;
   color: var(--text);
+}
+
+.app-form select {
+  color-scheme: dark;
 }
 
 .app-form textarea {
@@ -397,6 +478,83 @@ input {
 .secondary-link {
   display: inline-block;
   margin-top: 18px;
+}
+
+.simple-list,
+.soil-history-list,
+.soil-component-rows {
+  display: grid;
+  gap: 12px;
+}
+
+.simple-list-item,
+.soil-history-item,
+.soil-component-row {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid #2d3338;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.simple-list-item {
+  color: var(--text);
+}
+
+.simple-list-item small,
+.soil-history-item span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.soil-components-fieldset {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.soil-components-fieldset legend {
+  margin-bottom: 8px;
+  color: var(--blue);
+}
+
+.soil-component-row {
+  grid-template-columns: 1fr 96px 42px;
+  align-items: end;
+}
+
+.soil-row-errors {
+  grid-column: 1 / -1;
+}
+
+.soil-component-row.is-deleted {
+  display: none;
+}
+
+.delete-row {
+  min-width: 0;
+}
+
+.delete-row-control {
+  display: none;
+}
+
+.mode-actions {
+  margin: 0 0 12px;
+}
+
+.soil-history-item h2 {
+  margin: 0;
+  color: var(--blue);
+  font-size: 1.05rem;
+}
+
+.soil-history-item p {
+  margin: 0;
+  color: var(--muted);
 }
 
 .messages {
