@@ -31,6 +31,17 @@ class PlantDetailView(UserPlantQuerySetMixin, DetailView):
     template_name = 'garden/plant_detail.html'
     context_object_name = 'plant'
 
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related('soils__parts__soil_component')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_soil'] = next(
+            (plant_soil for plant_soil in self.object.soils.all() if plant_soil.is_current),
+            None,
+        )
+        return context
+
 
 class PlantCreateView(LoginRequiredMixin, CreateView):
     model = Plant

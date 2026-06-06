@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Компоненты почвы{% endblock %}
+
+{% block content %}
+  <section class="phone-panel form-panel">
+    <h1>Компоненты почвы</h1>
+
+    {% if components %}
+      <div class="simple-list">
+        {% for component in components %}
+          <a class="simple-list-item" href="{% url 'soil:component_update' component.pk %}">
+            <span>{{ component.name }}</span>
+            {% if not component.is_active %}<small>скрыт</small>{% endif %}
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-state">Компонентов пока нет.</p>
+    {% endif %}
+
+    <div class="detail-actions">
+      <a href="{% url 'soil:component_create' %}">Добавить компонент</a>
+      <a href="{% url 'garden:plant_list' %}">К цветам</a>
+    </div>
+  </section>
+{% endblock %}

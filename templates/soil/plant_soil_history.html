@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}История почвы{% endblock %}
+
+{% block content %}
+  <section class="phone-panel form-panel">
+    <h1>История почвы</h1>
+    <p class="form-subtitle">{{ plant.name }}</p>
+
+    {% if plant_soils %}
+      <div class="soil-history-list">
+        {% for plant_soil in plant_soils %}
+          <article class="soil-history-item">
+            <h2>
+              {{ plant_soil.set_at|date:"d.m.Y" }}
+              {% if plant_soil.is_current %}<span>текущий</span>{% endif %}
+            </h2>
+            <a href="{% url 'soil:plant_soil_edit' plant_soil.pk %}">
+              {{ plant_soil.composition_text|default:"Состав почвы" }}
+            </a>
+            {% if plant_soil.comment %}<p>{{ plant_soil.comment|linebreaksbr }}</p>{% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-state">Истории состава пока нет.</p>
+    {% endif %}
+
+    <div class="detail-actions">
+      <a href="{% url 'soil:plant_soil_create' plant.pk %}">Добавить состав</a>
+      <a href="{% url 'garden:plant_detail' plant.pk %}">Назад к цветку</a>
+    </div>
+  </section>
+{% endblock %}
