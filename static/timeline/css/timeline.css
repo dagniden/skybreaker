@@ -176,8 +176,10 @@ button {
 .timeline-date-group {
   display: none;
   align-items: flex-end;
-  justify-content: space-between;
-  gap: 18px;
+  justify-content: flex-start;
+  gap: 50px;
+  overflow-x: auto;
+  overflow-y: hidden;
   border-bottom: 1px solid var(--line);
 }
 
@@ -187,7 +189,7 @@ button {
 
 .timeline-date {
   position: relative;
-  min-width: 76px;
+  min-width: max-content;
   padding: 0 0 16px;
   border: 0;
   background: transparent;
