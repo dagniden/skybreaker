@@ -51,7 +51,7 @@ class TimelineEvent(models.Model):
         on_delete=models.CASCADE,
         related_name='events',
     )
-    event_date = models.DateField(blank=True, null=True)
+    event_date = models.DateField()
     date_label = models.CharField(
         max_length=50,
         blank=True,
@@ -79,8 +79,8 @@ class TimelineEvent(models.Model):
 
     @property
     def display_date(self):
-        if self.date_label:
-            return self.date_label
-        if self.event_date:
-            return self.event_date.strftime('%b %d').upper()
-        return ''
+        return self.event_date.strftime('%b %d').upper()
+
+    @property
+    def display_kicker(self):
+        return f"TIMELINE: {self.event_date.strftime('%b %Y').upper()}"

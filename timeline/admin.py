@@ -16,8 +16,6 @@ class TimelineEventInline(admin.StackedInline):
     extra = 1
     fields = (
         'event_date',
-        'date_label',
-        'kicker',
         'title',
         'description',
         'image',
@@ -48,13 +46,13 @@ class TimelineYearAdmin(admin.ModelAdmin):
 
 @admin.register(TimelineEvent)
 class TimelineEventAdmin(admin.ModelAdmin):
-    list_display = ('title', 'year', 'display_date', 'sort_order', 'is_published', 'image_preview')
+    list_display = ('title', 'year', 'display_kicker', 'display_date', 'sort_order', 'is_published', 'image_preview')
     list_filter = ('year__page', 'year', 'is_published', 'event_date', 'created_at')
-    search_fields = ('title', 'description', 'kicker', 'year__page__title')
+    search_fields = ('title', 'description', 'year__page__title')
     autocomplete_fields = ('year',)
     readonly_fields = ('image_preview',)
     fieldsets = (
-        (None, {'fields': ('year', 'event_date', 'date_label', 'kicker', 'title', 'description')}),
+        (None, {'fields': ('year', 'event_date', 'title', 'description')}),
         ('Изображение', {'fields': ('image', 'image_alt', 'image_preview')}),
         ('Публикация', {'fields': ('sort_order', 'is_published')}),
     )

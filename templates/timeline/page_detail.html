@@ -46,7 +46,7 @@
               {% if event.image %}data-image="{{ event.image.url }}"{% endif %}
               data-image-alt="{{ event.image_alt|default:event.title }}"
             >
-              <p class="timeline-kicker">{{ event.kicker|default:page.subtitle|default:'Timeline' }}{% if event.display_date %} : {{ event.display_date }}{% endif %}</p>
+              <p class="timeline-kicker">{{ event.display_kicker }}</p>
               <h1>{{ event.title }}</h1>
               {% if event.description %}
                 <p class="timeline-description">{{ event.description }}</p>
