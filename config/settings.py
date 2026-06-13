@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'garden.apps.GardenConfig',
     'soil.apps.SoilConfig',
+    'timeline.apps.TimelineConfig',
 ]
 
 MIDDLEWARE = [

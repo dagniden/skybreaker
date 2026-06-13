@@ -1,0 +1,83 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page.title }}</title>
+  <link rel="stylesheet" href="{% static 'timeline/css/timeline.css' %}">
+  <script src="{% static 'timeline/js/timeline.js' %}" defer></script>
+</head>
+<body>
+  <main class="timeline-app" data-timeline>
+    {% if active_event and active_event.image %}
+      <img class="timeline-bg is-active" src="{{ active_event.image.url }}" alt="{{ active_event.image_alt|default:active_event.title }}" data-bg-image>
+    {% else %}
+      <div class="timeline-bg timeline-bg-empty is-active" data-bg-image></div>
+    {% endif %}
+
+    <div class="timeline-scrim"></div>
+
+    <aside class="timeline-years" aria-label="Годы">
+      <div class="timeline-arc" aria-hidden="true">
+        <svg viewBox="0 0 320 760" preserveAspectRatio="none" focusable="false">
+          <path d="M 300 0 C 210 0 140 70 140 155 L 140 640 C 140 710 85 760 0 760" />
+        </svg>
+      </div>
+      {% for year, events in years %}
+        <button
+          class="timeline-year{% if year == active_year %} is-active{% endif %}"
+          type="button"
+          data-year="{{ year.id }}"
+        >
+          {{ year.year }}
+        </button>
+      {% endfor %}
+    </aside>
+
+    <section class="timeline-copy" aria-live="polite">
+      {% if active_event %}
+        {% for year, events in years %}
+          {% for event in events %}
+            <article
+              class="timeline-event{% if event == active_event %} is-active{% endif %}"
+              data-event="{{ event.id }}"
+              data-year="{{ year.id }}"
+              {% if event.image %}data-image="{{ event.image.url }}"{% endif %}
+              data-image-alt="{{ event.image_alt|default:event.title }}"
+            >
+              <p class="timeline-kicker">{{ event.kicker|default:page.subtitle|default:'Timeline' }}{% if event.display_date %} : {{ event.display_date }}{% endif %}</p>
+              <h1>{{ event.title }}</h1>
+              {% if event.description %}
+                <p class="timeline-description">{{ event.description }}</p>
+              {% endif %}
+            </article>
+          {% endfor %}
+        {% endfor %}
+      {% else %}
+        <article class="timeline-event is-active">
+          <p class="timeline-kicker">{{ page.subtitle|default:'Timeline' }}</p>
+          <h1>{{ page.title }}</h1>
+          <p class="timeline-description">Добавьте опубликованные годы и события в админке.</p>
+        </article>
+      {% endif %}
+    </section>
+
+    <nav class="timeline-dates" aria-label="Даты событий">
+      {% for year, events in years %}
+        <div class="timeline-date-group{% if year == active_year %} is-active{% endif %}" data-date-group="{{ year.id }}">
+          {% for event in events %}
+            <button
+              class="timeline-date{% if event == active_event %} is-active{% endif %}"
+              type="button"
+              data-event-target="{{ event.id }}"
+            >
+              {{ event.display_date|default:event.title }}
+            </button>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </nav>
+  </main>
+</body>
+</html>

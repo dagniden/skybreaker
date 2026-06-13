@@ -13,6 +13,8 @@ gunicorn = "^26.0.0"
 psycopg = {extras = ["binary"], version = "^3.3.4"}
 dj-database-url = "^3.1.2"
 python-decouple = "^3.8"
+pyzeebe = "^4.7.0"
+grpcio = "^1.81.1"
 
 
 [build-system]
