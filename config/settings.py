@@ -43,6 +43,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -130,7 +131,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'UTC'
 
@@ -153,3 +154,40 @@ AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = 'users:login'
 LOGIN_REDIRECT_URL = 'garden:plant_list'
 LOGOUT_REDIRECT_URL = 'users:login'
+
+JAZZMIN_SETTINGS = {
+    'site_title': 'Админка Skybreaker',
+    'site_header': 'Skybreaker',
+    'site_brand': 'Skybreaker',
+    'welcome_sign': 'Панель управления Skybreaker',
+    'copyright': 'Skybreaker',
+    'search_model': ['timeline.Timeline', 'timeline.TimelineEvent', 'users.User'],
+    'order_with_respect_to': ['timeline', 'garden', 'soil', 'users', 'auth'],
+    'icons': {
+        'auth.Group': 'fas fa-users',
+        'users.User': 'fas fa-user',
+        'timeline.Timeline': 'fas fa-stream',
+        'timeline.TimelineEvent': 'fas fa-calendar-alt',
+        'garden.Plant': 'fas fa-seedling',
+        'garden.PlantPhoto': 'fas fa-image',
+        'soil.SoilComponent': 'fas fa-mountain',
+        'soil.PlantSoil': 'fas fa-layer-group',
+    },
+}
+
+JAZZMIN_UI_TWEAKS = {
+    'theme': 'lumen',
+    'default_theme_mode': 'light',
+    'navbar': 'navbar-white navbar-light',
+    'sidebar': 'sidebar-light-primary',
+    'brand_colour': 'navbar-light',
+    'accent': 'accent-info',
+    'button_classes': {
+        'primary': 'btn-outline-primary',
+        'secondary': 'btn-outline-secondary',
+        'info': 'btn-outline-info',
+        'warning': 'btn-outline-warning',
+        'danger': 'btn-outline-danger',
+        'success': 'btn-outline-success',
+    },
+}
