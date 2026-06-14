@@ -5,6 +5,6 @@ from . import views
 app_name = 'timeline'
 
 urlpatterns = [
-    path('', views.page_detail, name='index'),
-    path('<slug:slug>/', views.page_detail, name='page_detail'),
+    path('', views.timeline_detail, name='index'),
+    path('<slug:name>/', views.timeline_detail, name='timeline_detail'),
 ]

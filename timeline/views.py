@@ -1,21 +1,21 @@
 from django.shortcuts import get_object_or_404, render
 
-from .models import TimelinePage
+from .models import Timeline
 
 
-def page_detail(request, slug='demo'):
-    page = get_object_or_404(
-        TimelinePage.objects.prefetch_related('years__events'),
-        slug=slug,
+def timeline_detail(request, name='demo'):
+    timeline = get_object_or_404(
+        Timeline.objects.prefetch_related('events'),
+        name=name,
         is_published=True,
     )
-    years = []
-    for year in page.years.all():
-        if not year.is_published:
-            continue
-        events = [event for event in year.events.all() if event.is_published]
-        if events:
-            years.append((year, events))
+    events = timeline.events.filter(is_published=True).order_by('event_date', 'id')
+    years_by_value = {}
+
+    for event in events:
+        years_by_value.setdefault(event.event_date.year, []).append(event)
+
+    years = list(years_by_value.items())
 
     active_year = years[0][0] if years else None
     active_event = years[0][1][0] if years else None
@@ -24,7 +24,7 @@ def page_detail(request, slug='demo'):
         request,
         'timeline/page_detail.html',
         {
-            'page': page,
+            'timeline': timeline,
             'years': years,
             'active_year': active_year,
             'active_event': active_event,
