@@ -94,10 +94,10 @@ class TimelineEventInline(admin.StackedInline):
 
 @admin.register(Timeline)
 class TimelineAdmin(admin.ModelAdmin):
-    list_display = ('name', 'user', 'events_count', 'is_published', 'updated_at')
-    list_filter = ('is_published', 'created_at', 'updated_at')
+    list_display = ('name', 'user', 'events_count', 'is_published', 'owner_only', 'updated_at')
+    list_filter = ('is_published', 'owner_only', 'created_at', 'updated_at')
     search_fields = ('name', 'description', 'user__username')
-    fields = ('user', 'name', 'description', 'is_published')
+    fields = ('user', 'name', 'description', 'is_published', 'owner_only')
     inlines = [TimelineEventInline]
 
     def get_queryset(self, request):
@@ -109,7 +109,7 @@ class TimelineAdmin(admin.ModelAdmin):
     def get_fields(self, request, obj=None):
         if request.user.is_superuser:
             return self.fields
-        return ('name', 'description', 'is_published')
+        return ('name', 'description', 'is_published', 'owner_only')
 
     def has_add_permission(self, request):
         if request.user.is_superuser:

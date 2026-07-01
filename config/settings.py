@@ -44,6 +44,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 INSTALLED_APPS = [
     'jazzmin',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'garden.apps.GardenConfig',
     'soil.apps.SoilConfig',
     'timeline.apps.TimelineConfig',
+    'transcription.apps.TranscriptionConfig',
 ]
 
 MIDDLEWARE = [
@@ -154,6 +156,8 @@ AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = 'users:login'
 LOGIN_REDIRECT_URL = 'garden:plant_list'
 LOGOUT_REDIRECT_URL = 'users:login'
+
+TRANSCRIPTION_API_TOKEN = config('TRANSCRIPTION_API_TOKEN', default='')
 
 JAZZMIN_SETTINGS = {
     'site_title': 'Админка Skybreaker',

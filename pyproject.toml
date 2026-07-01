@@ -16,6 +16,8 @@ python-decouple = "^3.8"
 pyzeebe = "^4.7.0"
 grpcio = "^1.81.1"
 django-jazzmin = "^3.0.4"
+djangorestframework = "^3.17.1"
+httpx = "^0.28.1"
 
 
 [build-system]

@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_TranscriptionSupervisor" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.47.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.9.0">
+  <bpmn:process id="transcription-supervisor" name="Transcription Supervisor" isExecutable="true">
+    <bpmn:documentation>Один долгоживущий supervisor-процесс. Не стартует по расписанию. После деплоя должен быть создан один process instance вручную или bootstrap-кодом worker service.
+
+Required start variables:
+{
+  "djangoApiBase": "http://localhost:8000/api/transcription",
+  "transcriptionApiToken": "secret",
+  "staleMinutes": 720
+}</bpmn:documentation>
+    <bpmn:startEvent id="StartEvent_TranscriptionSupervisor" name="Start supervisor">
+      <bpmn:outgoing>Flow_Start_To_Recover</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Activity_RecoverStaleJobs" name="Recover stale jobs" zeebe:modelerTemplate="io.camunda.connectors.HttpJson.v2" zeebe:modelerTemplateVersion="12">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.camunda:http-json:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="noAuth" target="authentication.type" />
+          <zeebe:input source="POST" target="method" />
+          <zeebe:input source="=djangoApiBase + &#34;/jobs/recover-stale/&#34;" target="url" />
+          <zeebe:input source="={&#34;Authorization&#34;: &#34;Bearer &#34; + transcriptionApiToken, &#34;Content-Type&#34;: &#34;application/json&#34;}" target="headers" />
+          <zeebe:input source="={&#34;older_than_minutes&#34;: staleMinutes}" target="body" />
+          <zeebe:input source="=false" target="storeResponse" />
+          <zeebe:input source="=20" target="connectionTimeoutInSeconds" />
+          <zeebe:input source="=60" target="readTimeoutInSeconds" />
+          <zeebe:input source="=false" target="ignoreNullValues" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="12" />
+          <zeebe:header key="elementTemplateId" value="io.camunda.connectors.HttpJson.v2" />
+          <zeebe:header key="resultVariable" value="recoverResult" />
+          <zeebe:header key="retryBackoff" value="PT10S" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Start_To_Recover</bpmn:incoming>
+      <bpmn:outgoing>Flow_Recover_To_Acquire</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_AcquireNextJob" name="Acquire next job" zeebe:modelerTemplate="io.camunda.connectors.HttpJson.v2" zeebe:modelerTemplateVersion="12">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.camunda:http-json:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="noAuth" target="authentication.type" />
+          <zeebe:input source="POST" target="method" />
+          <zeebe:input source="=djangoApiBase + &#34;/jobs/acquire-next/&#34;" target="url" />
+          <zeebe:input source="={&#34;Authorization&#34;: &#34;Bearer &#34; + transcriptionApiToken, &#34;Content-Type&#34;: &#34;application/json&#34;}" target="headers" />
+          <zeebe:input source="={&#34;worker_id&#34;: &#34;camunda-transcription-supervisor&#34;, &#34;process_instance_key&#34;: &#34;&#34;}" target="body" />
+          <zeebe:input source="=true" target="storeResponse" />
+          <zeebe:input source="=20" target="connectionTimeoutInSeconds" />
+          <zeebe:input source="=60" target="readTimeoutInSeconds" />
+          <zeebe:input source="=false" target="ignoreNullValues" />
+          <zeebe:output source="=getJson(acquireResult.body).job_found" target="job_found" />
+          <zeebe:output source="=if getJson(acquireResult.body).job_found then getJson(acquireResult.body).job.id else null" target="job_id" />
+          <zeebe:output source="=if getJson(acquireResult.body).job_found then getJson(acquireResult.body).job.file_path else null" target="file_path" />
+          <zeebe:output source="=if getJson(acquireResult.body).job_found then getJson(acquireResult.body).job.file_name else null" target="file_name" />
+          <zeebe:output source="=if getJson(acquireResult.body).job_found then getJson(acquireResult.body).job.file_size else null" target="file_size" />
+          <zeebe:output source="=if getJson(acquireResult.body).job_found then getJson(acquireResult.body).job.transcript_path else null" target="transcript_path" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="12" />
+          <zeebe:header key="elementTemplateId" value="io.camunda.connectors.HttpJson.v2" />
+          <zeebe:header key="resultVariable" value="acquireResult" />
+          <zeebe:header key="retryBackoff" value="PT10S" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Recover_To_Acquire</bpmn:incoming>
+      <bpmn:incoming>Flow_Wait_To_Acquire</bpmn:incoming>
+      <bpmn:incoming>Flow_ShortWait_To_Acquire</bpmn:incoming>
+      <bpmn:outgoing>Flow_Acquire_To_Gateway</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_JobFound" name="Job found?" default="Flow_NoJob_To_Wait">
+      <bpmn:incoming>Flow_Acquire_To_Gateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_JobFound_To_Transcribe</bpmn:outgoing>
+      <bpmn:outgoing>Flow_NoJob_To_Wait</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_JobFound_To_Transcribe" name="yes" sourceRef="Gateway_JobFound" targetRef="Activity_TranscribeRecording">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=job_found = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:intermediateCatchEvent id="Event_WaitForJobs" name="Wait for jobs">
+      <bpmn:incoming>Flow_NoJob_To_Wait</bpmn:incoming>
+      <bpmn:incoming>Flow_Fail_To_Wait</bpmn:incoming>
+      <bpmn:outgoing>Flow_Wait_To_Acquire</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_WaitForJobs">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT30S</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="Activity_TranscribeRecording" name="Transcribe recording">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="transcribe-recording" retries="1" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_JobFound_To_Transcribe</bpmn:incoming>
+      <bpmn:outgoing>Flow_Transcribe_To_Complete</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="Event_TranscribeFailed" name="Transcribe failed" attachedToRef="Activity_TranscribeRecording">
+      <bpmn:outgoing>Flow_TranscribeFailed_To_Fail</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_TranscribeFailed" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Activity_CompleteJob" name="Complete job" zeebe:modelerTemplate="io.camunda.connectors.HttpJson.v2" zeebe:modelerTemplateVersion="12">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.camunda:http-json:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="noAuth" target="authentication.type" />
+          <zeebe:input source="POST" target="method" />
+          <zeebe:input source="=djangoApiBase + &#34;/jobs/&#34; + string(job_id) + &#34;/complete/&#34;" target="url" />
+          <zeebe:input source="={&#34;Authorization&#34;: &#34;Bearer &#34; + transcriptionApiToken, &#34;Content-Type&#34;: &#34;application/json&#34;}" target="headers" />
+          <zeebe:input source="={&#34;transcript_path&#34;: transcript_path, &#34;language&#34;: language, &#34;duration_seconds&#34;: duration_seconds, &#34;model&#34;: model, &#34;metadata&#34;: metadata}" target="body" />
+          <zeebe:input source="=false" target="storeResponse" />
+          <zeebe:input source="=20" target="connectionTimeoutInSeconds" />
+          <zeebe:input source="=60" target="readTimeoutInSeconds" />
+          <zeebe:input source="=true" target="ignoreNullValues" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="12" />
+          <zeebe:header key="elementTemplateId" value="io.camunda.connectors.HttpJson.v2" />
+          <zeebe:header key="resultVariable" value="completeResult" />
+          <zeebe:header key="retryBackoff" value="PT10S" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Transcribe_To_Complete</bpmn:incoming>
+      <bpmn:outgoing>Flow_Complete_To_ShortWait</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_FailJob" name="Fail job" zeebe:modelerTemplate="io.camunda.connectors.HttpJson.v2" zeebe:modelerTemplateVersion="12">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.camunda:http-json:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="noAuth" target="authentication.type" />
+          <zeebe:input source="POST" target="method" />
+          <zeebe:input source="=djangoApiBase + &#34;/jobs/&#34; + string(job_id) + &#34;/fail/&#34;" target="url" />
+          <zeebe:input source="={&#34;Authorization&#34;: &#34;Bearer &#34; + transcriptionApiToken, &#34;Content-Type&#34;: &#34;application/json&#34;}" target="headers" />
+          <zeebe:input source="={&#34;error_type&#34;: &#34;transcribe_error&#34;, &#34;error_message&#34;: if error_message != null then error_message else &#34;Transcription failed&#34;, &#34;retryable&#34;: true}" target="body" />
+          <zeebe:input source="=false" target="storeResponse" />
+          <zeebe:input source="=20" target="connectionTimeoutInSeconds" />
+          <zeebe:input source="=60" target="readTimeoutInSeconds" />
+          <zeebe:input source="=false" target="ignoreNullValues" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="12" />
+          <zeebe:header key="elementTemplateId" value="io.camunda.connectors.HttpJson.v2" />
+          <zeebe:header key="resultVariable" value="failResult" />
+          <zeebe:header key="retryBackoff" value="PT10S" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_TranscribeFailed_To_Fail</bpmn:incoming>
+      <bpmn:outgoing>Flow_Fail_To_Wait</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="Event_ShortWaitAfterComplete" name="Short wait">
+      <bpmn:incoming>Flow_Complete_To_ShortWait</bpmn:incoming>
+      <bpmn:outgoing>Flow_ShortWait_To_Acquire</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_ShortWaitAfterComplete">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT1S</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_Start_To_Recover" sourceRef="StartEvent_TranscriptionSupervisor" targetRef="Activity_RecoverStaleJobs" />
+    <bpmn:sequenceFlow id="Flow_Recover_To_Acquire" sourceRef="Activity_RecoverStaleJobs" targetRef="Activity_AcquireNextJob" />
+    <bpmn:sequenceFlow id="Flow_Acquire_To_Gateway" sourceRef="Activity_AcquireNextJob" targetRef="Gateway_JobFound" />
+    <bpmn:sequenceFlow id="Flow_NoJob_To_Wait" name="no" sourceRef="Gateway_JobFound" targetRef="Event_WaitForJobs" />
+    <bpmn:sequenceFlow id="Flow_Wait_To_Acquire" sourceRef="Event_WaitForJobs" targetRef="Activity_AcquireNextJob" />
+    <bpmn:sequenceFlow id="Flow_Transcribe_To_Complete" sourceRef="Activity_TranscribeRecording" targetRef="Activity_CompleteJob" />
+    <bpmn:sequenceFlow id="Flow_Complete_To_ShortWait" sourceRef="Activity_CompleteJob" targetRef="Event_ShortWaitAfterComplete" />
+    <bpmn:sequenceFlow id="Flow_ShortWait_To_Acquire" sourceRef="Event_ShortWaitAfterComplete" targetRef="Activity_AcquireNextJob" />
+    <bpmn:sequenceFlow id="Flow_TranscribeFailed_To_Fail" sourceRef="Event_TranscribeFailed" targetRef="Activity_FailJob" />
+    <bpmn:sequenceFlow id="Flow_Fail_To_Wait" sourceRef="Activity_FailJob" targetRef="Event_WaitForJobs" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_TranscriptionSupervisor">
+    <bpmndi:BPMNPlane id="BPMNPlane_TranscriptionSupervisor" bpmnElement="transcription-supervisor">
+      <bpmndi:BPMNShape id="StartEvent_TranscriptionSupervisor_di" bpmnElement="StartEvent_TranscriptionSupervisor">
+        <dc:Bounds x="180" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="160" y="225" width="78" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_RecoverStaleJobs_di" bpmnElement="Activity_RecoverStaleJobs">
+        <dc:Bounds x="280" y="160" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_AcquireNextJob_di" bpmnElement="Activity_AcquireNextJob">
+        <dc:Bounds x="460" y="160" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_JobFound_di" bpmnElement="Gateway_JobFound" isMarkerVisible="true">
+        <dc:Bounds x="645" y="175" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="642" y="151" width="55" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_TranscribeRecording_di" bpmnElement="Activity_TranscribeRecording">
+        <dc:Bounds x="760" y="160" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_CompleteJob_di" bpmnElement="Activity_CompleteJob">
+        <dc:Bounds x="940" y="160" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_ShortWaitAfterComplete_di" bpmnElement="Event_ShortWaitAfterComplete">
+        <dc:Bounds x="1142" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1136" y="225" width="49" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_WaitForJobs_di" bpmnElement="Event_WaitForJobs">
+        <dc:Bounds x="592" y="492" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="580" y="535" width="61" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_FailJob_di" bpmnElement="Activity_FailJob">
+        <dc:Bounds x="760" y="380" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_TranscribeFailed_di" bpmnElement="Event_TranscribeFailed">
+        <dc:Bounds x="802" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="829" y="265" width="81" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Start_To_Recover_di" bpmnElement="Flow_Start_To_Recover">
+        <di:waypoint x="216" y="200" />
+        <di:waypoint x="280" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Recover_To_Acquire_di" bpmnElement="Flow_Recover_To_Acquire">
+        <di:waypoint x="400" y="200" />
+        <di:waypoint x="460" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Wait_To_Acquire_di" bpmnElement="Flow_Wait_To_Acquire">
+        <di:waypoint x="592" y="510" />
+        <di:waypoint x="520" y="510" />
+        <di:waypoint x="520" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ShortWait_To_Acquire_di" bpmnElement="Flow_ShortWait_To_Acquire">
+        <di:waypoint x="1160" y="182" />
+        <di:waypoint x="1160" y="100" />
+        <di:waypoint x="520" y="100" />
+        <di:waypoint x="520" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Acquire_To_Gateway_di" bpmnElement="Flow_Acquire_To_Gateway">
+        <di:waypoint x="580" y="200" />
+        <di:waypoint x="645" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_JobFound_To_Transcribe_di" bpmnElement="Flow_JobFound_To_Transcribe">
+        <di:waypoint x="695" y="200" />
+        <di:waypoint x="760" y="200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="719" y="175" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NoJob_To_Wait_di" bpmnElement="Flow_NoJob_To_Wait">
+        <di:waypoint x="670" y="225" />
+        <di:waypoint x="670" y="510" />
+        <di:waypoint x="628" y="510" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="643" y="487" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Fail_To_Wait_di" bpmnElement="Flow_Fail_To_Wait">
+        <di:waypoint x="820" y="460" />
+        <di:waypoint x="820" y="511" />
+        <di:waypoint x="628" y="511" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Transcribe_To_Complete_di" bpmnElement="Flow_Transcribe_To_Complete">
+        <di:waypoint x="880" y="200" />
+        <di:waypoint x="940" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Complete_To_ShortWait_di" bpmnElement="Flow_Complete_To_ShortWait">
+        <di:waypoint x="1060" y="200" />
+        <di:waypoint x="1142" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TranscribeFailed_To_Fail_di" bpmnElement="Flow_TranscribeFailed_To_Fail">
+        <di:waypoint x="820" y="258" />
+        <di:waypoint x="820" y="380" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

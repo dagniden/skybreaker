@@ -48,3 +48,49 @@ class TimelinePageViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Hidden')
+
+    def test_owner_only_timeline_shows_restricted_page_to_anonymous_user(self):
+        timeline = Timeline.objects.create(user=self.user, name='demo', is_published=True, owner_only=True)
+        TimelineEvent.objects.create(timeline=timeline, title='Draft Event', event_date=date(2001, 2, 28))
+
+        response = self.client.get(reverse('timeline:index'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Таймлайн временно находится на реконструкции')
+        self.assertContains(response, reverse('users:login'))
+        self.assertNotContains(response, 'Draft Event')
+
+    def test_owner_only_timeline_shows_content_to_owner(self):
+        timeline = Timeline.objects.create(user=self.user, name='demo', is_published=True, owner_only=True)
+        TimelineEvent.objects.create(timeline=timeline, title='Owner Event', event_date=date(2001, 2, 28))
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('timeline:index'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Owner Event')
+        self.assertNotContains(response, 'Таймлайн временно находится на реконструкции')
+
+    def test_owner_only_timeline_shows_restricted_page_to_other_user(self):
+        other_user = get_user_model().objects.create_user(username='other', password='password')
+        timeline = Timeline.objects.create(user=self.user, name='demo', is_published=True, owner_only=True)
+        TimelineEvent.objects.create(timeline=timeline, title='Private Event', event_date=date(2001, 2, 28))
+        self.client.force_login(other_user)
+
+        response = self.client.get(reverse('timeline:index'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Таймлайн временно находится на реконструкции')
+        self.assertNotContains(response, 'Private Event')
+
+    def test_owner_only_timeline_shows_content_to_superuser(self):
+        superuser = get_user_model().objects.create_superuser(username='admin', password='password')
+        timeline = Timeline.objects.create(user=self.user, name='demo', is_published=True, owner_only=True)
+        TimelineEvent.objects.create(timeline=timeline, title='Admin Event', event_date=date(2001, 2, 28))
+        self.client.force_login(superuser)
+
+        response = self.client.get(reverse('timeline:index'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Admin Event')
+        self.assertNotContains(response, 'Таймлайн временно находится на реконструкции')
