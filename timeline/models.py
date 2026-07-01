@@ -27,6 +27,11 @@ class Timeline(models.Model):
         default=False,
         help_text='Если выключено, публичная страница таймлайна будет недоступна.',
     )
+    owner_only = models.BooleanField(
+        'Просмотр только для владельца',
+        default=False,
+        help_text='Если включено, публичную страницу сможет открыть только авторизованный владелец таймлайна или администратор.',
+    )
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Обновлен', auto_now=True)
 

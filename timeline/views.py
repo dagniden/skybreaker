@@ -3,12 +3,20 @@ from django.shortcuts import get_object_or_404, render
 from .models import Timeline
 
 
+def user_can_view_timeline(user, timeline):
+    return user.is_authenticated and (user.is_superuser or timeline.user_id == user.id)
+
+
 def timeline_detail(request, name='demo'):
     timeline = get_object_or_404(
         Timeline.objects.prefetch_related('events'),
         name=name,
         is_published=True,
     )
+
+    if timeline.owner_only and not user_can_view_timeline(request.user, timeline):
+        return render(request, 'timeline/restricted.html', {'timeline': timeline})
+
     events = timeline.events.filter(is_published=True).order_by('event_date', 'id')
     years_by_value = {}
 

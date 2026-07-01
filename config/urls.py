@@ -24,6 +24,7 @@ urlpatterns = [
     path('timeline/', include('timeline.urls')),
     path('users/', include('users.urls')),
     path('soil/', include('soil.urls')),
+    path('api/transcription/', include('transcription.urls')),
     path('', include('garden.urls')),
 ]
 
