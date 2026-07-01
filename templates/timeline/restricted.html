@@ -1,0 +1,25 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ timeline.name }}: доступ временно ограничен</title>
+  <link rel="stylesheet" href="{% static 'timeline/css/timeline.css' %}">
+</head>
+<body>
+  <main class="timeline-restricted">
+    <section class="timeline-restricted-card">
+      <p class="timeline-restricted-kicker">Timeline</p>
+      <h1>Таймлайн временно находится на реконструкции</h1>
+      <p>
+        Публичный просмотр этой страницы пока закрыт. Если вы владелец таймлайна,
+        авторизуйтесь, чтобы посмотреть текущую версию.
+      </p>
+      <a class="timeline-restricted-link" href="{% url 'users:login' %}?next={{ request.get_full_path|urlencode }}">
+        Войти для просмотра
+      </a>
+    </section>
+  </main>
+</body>
+</html>

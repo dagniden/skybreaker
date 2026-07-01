@@ -23,6 +23,60 @@ button {
   font: inherit;
 }
 
+.timeline-restricted {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 75% 15%, rgba(44, 199, 189, 0.18), transparent 34%),
+    linear-gradient(135deg, #091015, #111 58%, #070707);
+}
+
+.timeline-restricted-card {
+  width: min(100%, 680px);
+  padding: clamp(28px, 5vw, 56px);
+  border: 1px solid rgba(44, 199, 189, 0.38);
+  border-radius: 28px;
+  background: rgba(8, 12, 16, 0.72);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.36);
+}
+
+.timeline-restricted-kicker {
+  display: inline-block;
+  margin: 0 0 18px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--accent);
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.timeline-restricted-card h1 {
+  margin: 0 0 20px;
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  line-height: 1.08;
+}
+
+.timeline-restricted-card p {
+  margin: 0 0 28px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  line-height: 1.6;
+}
+
+.timeline-restricted-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 46px;
+  padding: 0 22px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: #fff;
+  text-decoration: none;
+}
+
 .timeline-app {
   position: relative;
   min-height: 100vh;
