@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, ListView, TemplateView, UpdateView
 
-from garden.models import Plant
+from garden.models import Plant, PlantEvent
 
 from .forms import PlantSoilForm, SoilComponentForm, plant_soil_component_formset_factory
 from .models import PlantSoil, SoilComponent
@@ -77,6 +77,16 @@ class PlantSoilEditorMixin(LoginRequiredMixin):
 
         return plant_soil
 
+    def create_soil_change_event(self, plant_soil):
+        PlantEvent.objects.create(
+            user=self.request.user,
+            plant=plant_soil.plant,
+            event_type=PlantEvent.EventType.SOIL_CHANGE,
+            occurred_at=plant_soil.set_at,
+            title=plant_soil.name or 'Смена грунта',
+            comment=plant_soil.comment,
+        )
+
 
 class PlantSoilCreateView(PlantSoilEditorMixin, TemplateView):
     def dispatch(self, request, *args, **kwargs):
@@ -96,6 +106,7 @@ class PlantSoilCreateView(PlantSoilEditorMixin, TemplateView):
 
         if form.is_valid() and formset.is_valid():
             plant_soil = self.save_plant_soil(form, formset, self.plant, is_new_current=True)
+            self.create_soil_change_event(plant_soil)
             messages.success(request, 'Состав почвы сохранен.')
             return redirect('garden:plant_detail', pk=plant_soil.plant_id)
 
@@ -152,6 +163,7 @@ class PlantSoilReplaceView(PlantSoilCreateView):
 
         if form.is_valid() and formset.is_valid():
             plant_soil = self.save_plant_soil(form, formset, self.plant, is_new_current=True)
+            self.create_soil_change_event(plant_soil)
             messages.success(request, 'Создан новый текущий состав почвы.')
             return redirect('garden:plant_detail', pk=plant_soil.plant_id)
 

@@ -1,0 +1,7 @@
+{% if event.event_type == 'watering' or event.event_type == 'fertilizing' %}
+{% else %}
+  <strong>{{ event.title }}</strong>
+  {% if event.comment %}
+    <p>{{ event.comment|linebreaksbr }}</p>
+  {% endif %}
+{% endif %}
