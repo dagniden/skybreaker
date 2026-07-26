@@ -9,7 +9,7 @@ Required start variables:
   "transcriptionApiToken": "secret",
   "staleMinutes": 720
 }</bpmn:documentation>
-    <bpmn:startEvent id="StartEvent_TranscriptionSupervisor" name="Start supervisor">
+    <bpmn:startEvent id="StartEvent_TranscriptionSupervisor" name="Start supervisor1">
       <bpmn:outgoing>Flow_Start_To_Recover</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:serviceTask id="Activity_RecoverStaleJobs" name="Recover stale jobs" zeebe:modelerTemplate="io.camunda.connectors.HttpJson.v2" zeebe:modelerTemplateVersion="12">
@@ -166,7 +166,7 @@ Required start variables:
       <bpmndi:BPMNShape id="StartEvent_TranscriptionSupervisor_di" bpmnElement="StartEvent_TranscriptionSupervisor">
         <dc:Bounds x="180" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="160" y="225" width="78" height="14" />
+          <dc:Bounds x="157" y="225" width="84" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_RecoverStaleJobs_di" bpmnElement="Activity_RecoverStaleJobs">
@@ -181,11 +181,20 @@ Required start variables:
           <dc:Bounds x="642" y="151" width="55" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_WaitForJobs_di" bpmnElement="Event_WaitForJobs">
+        <dc:Bounds x="592" y="492" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="580" y="535" width="61" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_TranscribeRecording_di" bpmnElement="Activity_TranscribeRecording">
         <dc:Bounds x="760" y="160" width="120" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_CompleteJob_di" bpmnElement="Activity_CompleteJob">
         <dc:Bounds x="940" y="160" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_FailJob_di" bpmnElement="Activity_FailJob">
+        <dc:Bounds x="760" y="380" width="120" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_ShortWaitAfterComplete_di" bpmnElement="Event_ShortWaitAfterComplete">
         <dc:Bounds x="1142" y="182" width="36" height="36" />
@@ -193,21 +202,19 @@ Required start variables:
           <dc:Bounds x="1136" y="225" width="49" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_WaitForJobs_di" bpmnElement="Event_WaitForJobs">
-        <dc:Bounds x="592" y="492" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="580" y="535" width="61" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_FailJob_di" bpmnElement="Activity_FailJob">
-        <dc:Bounds x="760" y="380" width="120" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_TranscribeFailed_di" bpmnElement="Event_TranscribeFailed">
         <dc:Bounds x="802" y="222" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="829" y="265" width="81" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_JobFound_To_Transcribe_di" bpmnElement="Flow_JobFound_To_Transcribe">
+        <di:waypoint x="695" y="200" />
+        <di:waypoint x="760" y="200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="719" y="175" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Start_To_Recover_di" bpmnElement="Flow_Start_To_Recover">
         <di:waypoint x="216" y="200" />
         <di:waypoint x="280" y="200" />
@@ -216,27 +223,9 @@ Required start variables:
         <di:waypoint x="400" y="200" />
         <di:waypoint x="460" y="200" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Wait_To_Acquire_di" bpmnElement="Flow_Wait_To_Acquire">
-        <di:waypoint x="592" y="510" />
-        <di:waypoint x="520" y="510" />
-        <di:waypoint x="520" y="240" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_ShortWait_To_Acquire_di" bpmnElement="Flow_ShortWait_To_Acquire">
-        <di:waypoint x="1160" y="182" />
-        <di:waypoint x="1160" y="100" />
-        <di:waypoint x="520" y="100" />
-        <di:waypoint x="520" y="160" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Acquire_To_Gateway_di" bpmnElement="Flow_Acquire_To_Gateway">
         <di:waypoint x="580" y="200" />
         <di:waypoint x="645" y="200" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_JobFound_To_Transcribe_di" bpmnElement="Flow_JobFound_To_Transcribe">
-        <di:waypoint x="695" y="200" />
-        <di:waypoint x="760" y="200" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="719" y="175" width="18" height="14" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_NoJob_To_Wait_di" bpmnElement="Flow_NoJob_To_Wait">
         <di:waypoint x="670" y="225" />
@@ -246,10 +235,10 @@ Required start variables:
           <dc:Bounds x="643" y="487" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Fail_To_Wait_di" bpmnElement="Flow_Fail_To_Wait">
-        <di:waypoint x="820" y="460" />
-        <di:waypoint x="820" y="511" />
-        <di:waypoint x="628" y="511" />
+      <bpmndi:BPMNEdge id="Flow_Wait_To_Acquire_di" bpmnElement="Flow_Wait_To_Acquire">
+        <di:waypoint x="592" y="510" />
+        <di:waypoint x="520" y="510" />
+        <di:waypoint x="520" y="240" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Transcribe_To_Complete_di" bpmnElement="Flow_Transcribe_To_Complete">
         <di:waypoint x="880" y="200" />
@@ -259,9 +248,20 @@ Required start variables:
         <di:waypoint x="1060" y="200" />
         <di:waypoint x="1142" y="200" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ShortWait_To_Acquire_di" bpmnElement="Flow_ShortWait_To_Acquire">
+        <di:waypoint x="1160" y="182" />
+        <di:waypoint x="1160" y="100" />
+        <di:waypoint x="520" y="100" />
+        <di:waypoint x="520" y="160" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_TranscribeFailed_To_Fail_di" bpmnElement="Flow_TranscribeFailed_To_Fail">
         <di:waypoint x="820" y="258" />
         <di:waypoint x="820" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Fail_To_Wait_di" bpmnElement="Flow_Fail_To_Wait">
+        <di:waypoint x="820" y="460" />
+        <di:waypoint x="820" y="511" />
+        <di:waypoint x="628" y="511" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

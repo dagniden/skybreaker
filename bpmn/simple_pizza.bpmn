@@ -53,6 +53,11 @@
       <bpmn:outgoing>Flow_1w7r15e</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_1vksqp1" name="самовывоз" sourceRef="Gateway_0odrosp" targetRef="Activity_0easlk8">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property />
+        </zeebe:properties>
+      </bpmn:extensionElements>
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=delivery = false</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0lb6xig" name="доставка" sourceRef="Gateway_0odrosp" targetRef="Gateway_1cs5mjh" />
@@ -199,7 +204,7 @@
         <di:waypoint x="660" y="510" />
         <di:waypoint x="900" y="510" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="682" y="492" width="56" height="14" />
+          <dc:Bounds x="715" y="493" width="56" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0lb6xig_di" bpmnElement="Flow_0lb6xig">
