@@ -2,14 +2,20 @@ function getCsrfToken() {
   return document.querySelector('meta[name="csrf-token"]')?.content || '';
 }
 
-async function waterPlant(url) {
-  const response = await fetch(url, {
+async function waterPlant(url, formData = null) {
+  const options = {
     method: 'POST',
     headers: {
       'X-CSRFToken': getCsrfToken(),
       'X-Requested-With': 'XMLHttpRequest',
     },
-  });
+  };
+
+  if (formData) {
+    options.body = formData;
+  }
+
+  const response = await fetch(url, options);
 
   if (!response.ok) {
     return null;
@@ -89,11 +95,13 @@ function setupWaterForms() {
     form.addEventListener('submit', (event) => {
       event.preventDefault();
 
-      waterPlant(form.action).then((data) => {
+      waterPlant(form.action, new FormData(form)).then((data) => {
         if (!data?.ok) {
           form.submit();
           return;
         }
+
+        form.reset();
 
         document.querySelectorAll('.plant-water').forEach((water) => {
           water.style.height = `${data.moisture_percent}%`;

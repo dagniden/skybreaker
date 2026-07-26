@@ -344,13 +344,17 @@ textarea {
 }
 
 .plant-soil,
-.plant-notes {
+.plant-actions,
+.plant-notes,
+.event-history {
   margin-top: 18px;
   color: var(--muted);
 }
 
 .plant-soil h2,
-.plant-notes h2 {
+.plant-actions h2,
+.plant-notes h2,
+.event-history h2 {
   margin: 0 0 8px;
   color: var(--text);
   font-size: 1.1rem;
@@ -373,9 +377,167 @@ textarea {
   margin-top: 8px;
 }
 
-.plant-notes p {
+.plant-notes p,
+.event-history p {
   margin: 0;
   line-height: 1.45;
+}
+
+.quick-event-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.quick-event-form label {
+  color: var(--blue);
+}
+
+.quick-event-row {
+  display: flex;
+  gap: 8px;
+}
+
+.quick-event-row input {
+  min-width: 0;
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid #3d4650;
+  border-radius: 8px;
+  background: #171a1d;
+  color: var(--text);
+}
+
+.quick-event-row .primary-button {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.icon-action-button {
+  display: grid;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.icon-action-button svg {
+  width: 23px;
+  height: 23px;
+  fill: currentColor;
+}
+
+.icon-action-water {
+  background: var(--blue-soft);
+  color: #8fcbff;
+}
+
+.icon-action-fertilize {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.icon-action-note {
+  background: rgba(255, 221, 128, 0.12);
+  color: #ffdd80;
+}
+
+.section-heading-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.event-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.event-card {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 2px solid #2d3338;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.event-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.event-card-meta-text {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.event-inline-comment {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.event-card strong {
+  color: var(--text);
+}
+
+.event-icon,
+.event-card time,
+.event-placeholder {
+  color: var(--muted);
+}
+
+.event-card time {
+  font-size: 0.85rem;
+}
+
+.event-icon {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+}
+
+.event-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.event-icon-watering {
+  color: #8fcbff;
+}
+
+.event-icon-fertilizing {
+  color: var(--success);
+}
+
+.event-icon-note {
+  color: #ffdd80;
+}
+
+.event-icon-soil_change {
+  color: #c2996b;
+}
+
+.event-icon-inspection {
+  color: #d4b5ff;
+}
+
+.event-icon-treatment {
+  color: var(--danger);
 }
 
 .detail-actions {
@@ -592,5 +754,19 @@ textarea {
 
   .plant-card {
     width: 118px;
+  }
+
+  .quick-event-row input {
+    padding: 9px 10px;
+  }
+
+  .icon-action-button {
+    flex-basis: 40px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .event-card-meta-text {
+    gap: 6px;
   }
 }
