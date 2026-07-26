@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Plant, PlantPhoto
+from .models import Plant, PlantEvent, PlantPhoto
 
 
 @admin.register(Plant)
@@ -15,3 +15,10 @@ class PlantPhotoAdmin(admin.ModelAdmin):
     list_display = ('plant', 'taken_at', 'created_at')
     list_filter = ('taken_at', 'created_at')
     search_fields = ('plant__name', 'plant__user__username')
+
+
+@admin.register(PlantEvent)
+class PlantEventAdmin(admin.ModelAdmin):
+    list_display = ('plant', 'user', 'event_type', 'title', 'occurred_at', 'created_at')
+    list_filter = ('event_type', 'occurred_at', 'created_at')
+    search_fields = ('plant__name', 'user__username', 'title', 'comment')

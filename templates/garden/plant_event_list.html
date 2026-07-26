@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Все события {{ plant.name }}{% endblock %}
+
+{% block content %}
+  <section class="phone-panel form-panel">
+    <h1>История {{ plant.name }}</h1>
+
+    {% if events %}
+      <div class="event-list full-event-list">
+        {% for event in events %}
+          <article class="event-card">
+            <div class="event-card-meta">
+              <span class="event-card-meta-text">
+                <time datetime="{{ event.occurred_at|date:'c' }}">{{ event.occurred_at|date:"j E Y" }}</time>
+                {% if event.event_type == 'watering' or event.event_type == 'fertilizing' %}
+                  {% if event.comment %}
+                    <span class="event-inline-comment">{{ event.comment }}</span>
+                  {% endif %}
+                {% endif %}
+              </span>
+              <span class="event-icon event-icon-{{ event.event_type }}" aria-label="{{ event.get_event_type_display }}" role="img">
+                {% include "garden/includes/event_icon.html" %}
+              </span>
+            </div>
+            {% include "garden/includes/event_body.html" %}
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="event-placeholder">Событий пока нет.</p>
+    {% endif %}
+
+    <a class="secondary-link" href="{% url 'garden:plant_detail' plant.pk %}">Назад</a>
+  </section>
+{% endblock %}

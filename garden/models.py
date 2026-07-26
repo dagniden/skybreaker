@@ -36,6 +36,44 @@ class Plant(models.Model):
         return max(0, min(100, round(percent)))
 
 
+class PlantEvent(models.Model):
+    class EventType(models.TextChoices):
+        WATERING = 'watering', 'Полив'
+        INSPECTION = 'inspection', 'Осмотр'
+        TREATMENT = 'treatment', 'Лечение'
+        SOIL_CHANGE = 'soil_change', 'Смена грунта'
+        NOTE = 'note', 'Заметка'
+        FERTILIZING = 'fertilizing', 'Внесение удобрения'
+        OTHER = 'other', 'Другое'
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='plant_events',
+    )
+    plant = models.ForeignKey(
+        Plant,
+        on_delete=models.CASCADE,
+        related_name='events',
+    )
+    event_type = models.CharField(max_length=20, choices=EventType.choices)
+    occurred_at = models.DateTimeField(default=timezone.now)
+    title = models.CharField(max_length=150)
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-occurred_at', '-created_at']
+        indexes = [
+            models.Index(fields=['user', 'plant', '-occurred_at']),
+            models.Index(fields=['plant', 'event_type', '-occurred_at']),
+        ]
+
+    def __str__(self):
+        return f'{self.plant}: {self.get_event_type_display()} from {self.occurred_at:%Y-%m-%d}'
+
+
 class PlantPhoto(models.Model):
     plant = models.ForeignKey(
         Plant,

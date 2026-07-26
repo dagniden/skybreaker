@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from garden.models import Plant
+from garden.models import Plant, PlantEvent
 
 from .models import PlantSoil, PlantSoilComponent, SoilComponent
 
@@ -43,6 +43,9 @@ class PlantSoilViewTests(TestCase):
         plant_soil = PlantSoil.objects.get(plant=self.plant)
         self.assertTrue(plant_soil.is_current)
         self.assertEqual(plant_soil.parts.count(), 2)
+        event = PlantEvent.objects.get(plant=self.plant)
+        self.assertEqual(event.event_type, PlantEvent.EventType.SOIL_CHANGE)
+        self.assertEqual(event.title, 'После пересадки')
 
     def test_replace_plant_soil_keeps_old_soil_in_history(self):
         old_soil = PlantSoil.objects.create(plant=self.plant, user=self.user, is_current=True)
@@ -74,6 +77,9 @@ class PlantSoilViewTests(TestCase):
         new_soil = PlantSoil.objects.get(plant=self.plant, is_current=True)
         self.assertFalse(old_soil.is_current)
         self.assertNotEqual(old_soil.pk, new_soil.pk)
+        event = PlantEvent.objects.get(plant=self.plant)
+        self.assertEqual(event.event_type, PlantEvent.EventType.SOIL_CHANGE)
+        self.assertEqual(event.title, 'Новый состав')
 
     def test_component_percentages_must_sum_to_100(self):
         response = self.client.post(
@@ -219,6 +225,7 @@ class PlantSoilViewTests(TestCase):
         self.assertRedirects(response, reverse('garden:plant_detail', kwargs={'pk': self.plant.pk}))
         self.assertFalse(PlantSoilComponent.objects.filter(pk=ground_part.pk).exists())
         self.assertEqual(plant_soil.parts.count(), 2)
+        self.assertFalse(PlantEvent.objects.exists())
         perlite_part.refresh_from_db()
         black_soil_part.refresh_from_db()
         self.assertEqual(perlite_part.percentage, 40)
