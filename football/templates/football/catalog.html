@@ -1,0 +1,32 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Football — история матчей</title>
+  <link rel="stylesheet" href="{% static 'football/style.css' %}">
+</head>
+<body><main>
+  <header><div><h1>Football · История матчей</h1><p class="hint">Свободная игра 6×6 · Записи доступны без регистрации</p></div></header>
+  <p>Смотри матчи против ботов, перематывай к голам и делись ссылками.</p>
+  <div class="matches">
+  {% for replay in page %}
+    <article class="match">
+      <p class="hint"><time datetime="{{ replay.created_at|date:'c' }}">{{ replay.created_at|date:'d.m.Y H:i' }} UTC</time> · {{ replay.duration_display }}</p>
+      <h2><span class="blue">Игрок</span> {{ replay.player_goals }} : {{ replay.bot_goals }} <span class="red">Боты</span></h2>
+      <p class="hint">Доступен до {{ replay.expires_at|date:'d.m.Y' }}</p>
+      <a class="button" href="{{ replay.get_absolute_url }}">Смотреть матч →</a>
+    </article>
+  {% empty %}
+    <p class="empty">Пока нет доступных реплеев. Загрузи первый матч из игры!</p>
+  {% endfor %}
+  </div>
+  {% if page.paginator.num_pages > 1 %}
+  <nav class="pagination" aria-label="Страницы матчей">
+    {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">← Новее</a>{% endif %}
+    <span>{{ page.number }} / {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}<a href="?page={{ page.next_page_number }}">Старее →</a>{% endif %}
+  </nav>
+  {% endif %}
+</main></body></html>

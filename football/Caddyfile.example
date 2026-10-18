@@ -1,0 +1,22 @@
+# Replace the existing football.sky-breaker.ru block; do NOT add a duplicate.
+# The original sky-breaker.ru block is unchanged.
+football.sky-breaker.ru {
+    encode zstd gzip
+
+    @websocket header Upgrade websocket
+    handle @websocket {
+        reverse_proxy 127.0.0.1:8765
+    }
+
+    handle_path /static/* {
+        root * /opt/skybreaker/staticfiles
+        file_server
+    }
+
+    handle {
+        request_body {
+            max_size 12582912
+        }
+        reverse_proxy 127.0.0.1:8001
+    }
+}

@@ -1,0 +1,21 @@
+:root { color-scheme: dark; font: 16px system-ui, sans-serif; background: #111b21; color: #e7eff2; }
+body { margin: 0; }
+main { max-width: 1100px; margin: auto; padding: 20px; }
+header, .controls { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+header { justify-content: space-between; }
+h1 { font-size: 1.5rem; } h2 { font-size: 1.1rem; }
+#score { font-size: 2rem; white-space: nowrap; }
+canvas { display: block; width: 100%; height: auto; border: 1px solid #456; border-radius: 10px; background: #29671d; }
+.controls { padding: 18px 0; }
+button, select, .button { font: inherit; padding: 8px 14px; background: #263944; color: inherit; border: 1px solid #678; border-radius: 6px; }
+button, .button { cursor: pointer; } button:disabled { opacity: .5; cursor: default; }
+button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid #59bfff; }
+#seek { width: 100%; accent-color: #59bfff; }
+#goals { display: flex; flex-wrap: wrap; gap: 8px; }
+.hint, #status { color: #a8bdc7; font-size: .9rem; }
+a { color: #80caff; } .button { display: inline-block; text-decoration: none; }
+.matches { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; margin: 24px 0; }
+.match, .empty { padding: 20px; border: 1px solid #456; border-radius: 10px; background: #17262e; }
+.blue { color: #59bfff; } .red { color: #ff8979; }
+.pagination { display: flex; gap: 20px; align-items: center; margin: 24px 0; }
+@media (max-width: 600px) { main { padding: 10px; } .controls { gap: 12px; } }

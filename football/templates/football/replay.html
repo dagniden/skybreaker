@@ -1,0 +1,24 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Football — реплей матча</title>
+  <link rel="stylesheet" href="{% static 'football/style.css' %}">
+  <script src="{% static 'football/viewer.js' %}" defer></script>
+</head>
+<body><main>
+  <a href="{% url 'football:catalog' %}">← История матчей</a>
+  <header><h1>Football · Реплей</h1><strong id="score">{{ replay.player_goals }} : {{ replay.bot_goals }}</strong></header>
+  <p id="status" role="status">Загрузка записи…</p>
+  <canvas id="pitch" width="1600" height="900" data-replay-url="{% url 'football:replay_data' replay.pk %}" aria-label="Воспроизведение футбольного матча"></canvas>
+  <section class="controls" aria-label="Управление реплеем">
+    <button id="play" disabled>Играть</button>
+    <output id="clock">0:00 / 0:00</output>
+    <label>Скорость <select id="speed"><option value="0.5">×0,5</option><option value="1" selected>×1</option><option value="2">×2</option><option value="4">×4</option></select></label>
+    <input id="seek" type="range" min="0" max="1" value="0" step="1" aria-label="Перемотка" disabled>
+  </section>
+  <section><h2>Голы</h2><div id="goals">Пока нет голов</div></section>
+  <p class="hint">Пробел — пауза · ← / → — перемотка на 5 секунд · Синие — игрок, красные — боты</p>
+</main></body></html>

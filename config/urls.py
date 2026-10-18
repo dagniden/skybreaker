@@ -25,6 +25,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('soil/', include('soil.urls')),
     path('api/transcription/', include('transcription.urls')),
+    path('', include('football.urls')),
     path('', include('garden.urls')),
 ]
 
