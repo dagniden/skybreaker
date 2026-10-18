@@ -7,7 +7,7 @@ from django.core.files.base import ContentFile
 from django.core.paginator import Paginator
 from django.db import DatabaseError, OperationalError, transaction
 from django.db.models import Count, Sum
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
@@ -17,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Replay, UploadBudget
+from .releases import current_release
 from .validation import MAX_BYTES, validate_replay
 
 
@@ -120,6 +121,16 @@ def viewer(request, replay_id):
 def catalog(request):
     available = Replay.objects.filter(expires_at__gt=timezone.now()).defer('file')
     page = Paginator(available, 20).get_page(request.GET.get('page'))
-    response = render(request, 'football/catalog.html', {'page': page})
+    response = render(request, 'football/catalog.html', {'page': page, 'release': current_release()})
+    response['Cache-Control'] = 'no-store'
+    return secure_response(response)
+
+
+@require_GET
+def download(request):
+    release = current_release()
+    if release is None:
+        raise Http404('No client release is available yet')
+    response = HttpResponseRedirect(release['url'])
     response['Cache-Control'] = 'no-store'
     return secure_response(response)

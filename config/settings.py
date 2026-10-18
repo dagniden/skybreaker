@@ -163,6 +163,7 @@ TRANSCRIPTION_API_TOKEN = config('TRANSCRIPTION_API_TOKEN', default='')
 
 FOOTBALL_REPLAY_UPLOAD_TOKEN = config('FOOTBALL_REPLAY_UPLOAD_TOKEN', default='')
 FOOTBALL_SITE_HOSTS = env_list('FOOTBALL_SITE_HOSTS', 'football.sky-breaker.ru')
+FOOTBALL_DOWNLOAD_ROOT = Path(config('FOOTBALL_DOWNLOAD_ROOT', default=str(BASE_DIR / 'var' / 'football-downloads')))
 FOOTBALL_REPLAY_ROOT = Path(config('FOOTBALL_REPLAY_ROOT', default=str(BASE_DIR / 'var' / 'football-replays')))
 FOOTBALL_REPLAY_RETENTION_DAYS = config('FOOTBALL_REPLAY_RETENTION_DAYS', default=30, cast=int)
 FOOTBALL_REPLAY_MAX_STORAGE_BYTES = config('FOOTBALL_REPLAY_MAX_STORAGE_BYTES', default=256 * 1024 * 1024, cast=int)

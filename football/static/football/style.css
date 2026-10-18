@@ -17,5 +17,10 @@ a { color: #80caff; } .button { display: inline-block; text-decoration: none; }
 .matches { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; margin: 24px 0; }
 .match, .empty { padding: 20px; border: 1px solid #456; border-radius: 10px; background: #17262e; }
 .blue { color: #59bfff; } .red { color: #ff8979; }
+.release { padding: 24px; margin: 20px 0 32px; border: 1px solid #59bfff; border-radius: 10px; background: #17262e; }
+.release h2 { margin-top: 0; font-size: 1.3rem; overflow-wrap: anywhere; }
+.release li { margin: 8px 0; }
+.release .download { background: #194767; margin-right: 12px; }
+summary { cursor: pointer; }
 .pagination { display: flex; gap: 20px; align-items: center; margin: 24px 0; }
 @media (max-width: 600px) { main { padding: 10px; } .controls { gap: 12px; } }

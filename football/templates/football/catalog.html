@@ -4,11 +4,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Football — история матчей</title>
+  <title>Football — тестовая сборка и история матчей</title>
   <link rel="stylesheet" href="{% static 'football/style.css' %}">
 </head>
 <body><main>
-  <header><div><h1>Football · История матчей</h1><p class="hint">Свободная игра 6×6 · Записи доступны без регистрации</p></div></header>
+  <header><div><h1>Football · Тестовая площадка</h1><p class="hint">Клиент для тестировщиков и записи матчей</p></div></header>
+  <section class="release" aria-labelledby="release-title">
+    <h2 id="release-title">Актуальная тестовая сборка{% if release %} · {{ release.version }}{% endif %}</h2>
+    {% if release %}
+    <p class="hint">Windows x64 · {{ release.size_bytes|filesizeformat }} · <time datetime="{{ release.published_at|date:'c' }}">{{ release.published_at|date:'d.m.Y H:i' }} UTC</time></p>
+    <p><a class="button download" href="{% url 'football:download' %}">Скачать для Windows</a> <a href="{{ release.checksum_url }}">SHA256</a></p>
+    {% if release.notes %}<h3>Что нового</h3><ul>{% for note in release.notes %}<li>{{ note }}</li>{% endfor %}</ul>{% endif %}
+    <details><summary>Как запустить</summary>
+      <ol><li>Распакуйте ZIP в отдельную папку и запустите <code>football.exe</code>. Установка Godot не нужна.</li>
+      <li>Для игры по сети у всех участников должна быть одинаковая версия. Адрес сервера уже настроен.</li></ol>
+      <p class="hint">Сборка пока без цифровой подписи: Windows может показать предупреждение о неизвестном издателе. Не отключайте защиту системы.</p>
+    </details>
+    {% else %}<p class="hint">Сборка готовится к публикации. Ссылка на скачивание появится здесь.</p>{% endif %}
+  </section>
+  <h2>История матчей</h2>
   <p>Смотри матчи против ботов, перематывай к голам и делись ссылками.</p>
   <div class="matches">
   {% for replay in page %}

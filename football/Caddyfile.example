@@ -13,6 +13,18 @@ football.sky-breaker.ru {
         file_server
     }
 
+    handle_path /downloads/* {
+        root * /opt/skybreaker/var/football-downloads
+        @release_file path *.zip *.zip.sha256
+        handle @release_file {
+            header Content-Disposition "attachment"
+            header X-Content-Type-Options "nosniff"
+            header Cache-Control "public, max-age=3600"
+            file_server
+        }
+        respond 404
+    }
+
     handle {
         request_body {
             max_size 12582912

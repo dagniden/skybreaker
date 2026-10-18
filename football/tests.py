@@ -1,11 +1,14 @@
 import copy
+import hashlib
 import json
 import tempfile
+import zipfile
 from datetime import timedelta
 from pathlib import Path
 from unittest.mock import patch
 
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -163,3 +166,74 @@ class ReplayTests(TestCase):
         page2 = self.client.get('/football/?page=2')
         self.assertEqual(len(page1.context['page']), 20)
         self.assertEqual(len(page2.context['page']), 1)
+
+
+@override_settings(ALLOWED_HOSTS=['testserver', 'football.sky-breaker.ru'],
+                   FOOTBALL_SITE_HOSTS=['football.sky-breaker.ru'])
+class ReleaseTests(TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.root = Path(self.directory.name) / 'downloads'
+        override = override_settings(FOOTBALL_DOWNLOAD_ROOT=self.root)
+        override.enable()
+        self.addCleanup(override.disable)
+        self.archive = Path(self.directory.name) / 'client.zip'
+        with zipfile.ZipFile(self.archive, 'w') as package:
+            package.writestr('football.exe', b'test executable')
+            package.writestr('build-info.json', json.dumps({
+                'version': '0.1.0-playtest.3', 'platform': 'windows-x86_64', 'commit': 'abc123'}))
+        self.digest = hashlib.sha256(self.archive.read_bytes()).hexdigest()
+
+    def publish(self, **kwargs):
+        options = {'release_version': '0.1.0-playtest.3', 'sha256': self.digest,
+                   'note': ['Матчи 6×6', '<script>alert(1)</script>']}
+        options.update(kwargs)
+        call_command('publish_football_release', str(self.archive), **options)
+
+    def test_empty_release_and_download(self):
+        self.assertContains(self.client.get('/football/'), 'Сборка готовится')
+        self.assertEqual(self.client.get('/football/download/').status_code, 404)
+        self.assertEqual(self.client.get('/download/', HTTP_HOST='football.sky-breaker.ru').status_code, 404)
+
+    def test_publish_catalog_redirect_and_checksum(self):
+        self.publish()
+        filename = 'football-0.1.0-playtest.3-windows-x86_64.zip'
+        self.assertEqual((self.root / filename).read_bytes(), self.archive.read_bytes())
+        self.assertEqual((self.root / (filename + '.sha256')).read_text().strip(), f'{self.digest}  {filename}')
+        catalog = self.client.get('/', HTTP_HOST='football.sky-breaker.ru')
+        self.assertContains(catalog, '0.1.0-playtest.3')
+        self.assertContains(catalog, 'Скачать для Windows')
+        self.assertContains(catalog, '&lt;script&gt;')
+        self.assertNotContains(catalog, '<script>alert')
+        for url, host in [('/download/', 'football.sky-breaker.ru'), ('/football/download/', 'testserver')]:
+            response = self.client.get(url, HTTP_HOST=host)
+            self.assertEqual(response.status_code, 302)
+            self.assertEqual(response['Location'], '/downloads/' + filename)
+            self.assertEqual(response['Cache-Control'], 'no-store')
+
+    def test_invalid_package_does_not_switch_current(self):
+        self.publish()
+        previous = (self.root / 'current.json').read_bytes()
+        for options in [{'sha256': '0' * 64}, {'release_version': '../escape'}, {'release_version': '0.2.0'}]:
+            with self.assertRaises(CommandError):
+                self.publish(**options)
+            self.assertEqual((self.root / 'current.json').read_bytes(), previous)
+
+    def test_cannot_overwrite_existing_version(self):
+        self.publish()
+        with zipfile.ZipFile(self.archive, 'a') as package:
+            package.writestr('extra.txt', 'different build')
+        with self.assertRaisesMessage(CommandError, 'already exists'):
+            self.publish(sha256=hashlib.sha256(self.archive.read_bytes()).hexdigest())
+
+    def test_corrupt_or_missing_release_hides_download(self):
+        self.publish()
+        manifest = self.root / 'current.json'
+        original = manifest.read_text(encoding='utf-8')
+        for invalid in ['{', '[]', '{"version": null}', original.replace('0.1.0-playtest.3', '../escape')]:
+            manifest.write_text(invalid, encoding='utf-8')
+            self.assertEqual(self.client.get('/football/download/').status_code, 404)
+        manifest.write_text(original, encoding='utf-8')
+        (self.root / 'football-0.1.0-playtest.3-windows-x86_64.zip').unlink()
+        self.assertEqual(self.client.get('/football/download/').status_code, 404)
